@@ -1,0 +1,1 @@
+# Write a YACC program to recognize strings of the form a^nb^n+mc^m, n,m>=0
