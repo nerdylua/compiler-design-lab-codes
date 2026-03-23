@@ -1,0 +1,16 @@
+%{
+#include "prog.tab.h"
+%}
+%%
+[a]    { return 'a'; }
+[b]    { return 'b'; }
+[c]    { return 'c'; }
+[ \t]  { /* skip whitespace */ }
+[\n]   { return 0; }
+.      { return yytext[0]; }
+%%
+
+int yywrap(void)
+{
+    return 1;
+}
