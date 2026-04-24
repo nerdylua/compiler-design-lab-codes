@@ -1,4 +1,5 @@
 *.c
+!Program 5/*.c
 *.o
 *.exe
 *.out
