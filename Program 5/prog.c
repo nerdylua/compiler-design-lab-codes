@@ -1,157 +1,54 @@
-#include <ctype.h>
 #include <stdio.h>
 #include <string.h>
 
-#define MAX_VARS 50
-
-char vars[MAX_VARS][32];
-int var_count = 0;
-
-void trim(char *line)
-{
-    int start = 0;
-    int end;
-    int i;
-
-    while (line[start] && isspace((unsigned char)line[start])) {
-        start++;
-    }
-
-    end = (int)strlen(line) - 1;
-    while (end >= start && isspace((unsigned char)line[end])) {
-        line[end--] = '\0';
-    }
-
-    if (start > 0) {
-        for (i = 0; line[start + i]; i++) {
-            line[i] = line[start + i];
-        }
-        line[i] = '\0';
-    }
-}
-
-void add_var(const char *name)
-{
-    int i;
-
-    for (i = 0; i < var_count; i++) {
-        if (strcmp(vars[i], name) == 0) {
-            return;
-        }
-    }
-
-    strcpy(vars[var_count++], name);
-}
-
-void handle_declaration(char *line)
-{
-    char *token;
-
-    token = strtok(line + 3, ",;");
-    while (token != NULL) {
-        trim(token);
-        if (*token != '\0') {
-            add_var(token);
-        }
-        token = strtok(NULL, ",;");
-    }
-}
-
-void print_variables(void)
-{
-    int i;
-
-    printf("; Data Section\n");
-    for (i = 0; i < var_count; i++) {
-        printf("%s DW ?\n", vars[i]);
-    }
-
-    printf("\n; Code Section\n");
-    printf("MAIN:\n");
-}
-
-void handle_assignment(const char *line)
-{
-    char lhs[32];
-    char a1[32];
-    char a2[32];
-    char op;
-
-    if (sscanf(line, "%31[^=]=%31[^+-*/;]%c%31[^;];", lhs, a1, &op, a2) == 4) {
-        trim(lhs);
-        trim(a1);
-        trim(a2);
-        printf("MOV AX, %s\n", a1);
-        switch (op) {
-        case '+':
-            printf("ADD AX, %s\n", a2);
-            break;
-        case '-':
-            printf("SUB AX, %s\n", a2);
-            break;
-        case '*':
-            printf("MUL %s\n", a2);
-            break;
-        case '/':
-            printf("DIV %s\n", a2);
-            break;
-        }
-        printf("MOV %s, AX\n", lhs);
-    } else if (sscanf(line, "%31[^=]=%31[^;];", lhs, a1) == 2) {
-        trim(lhs);
-        trim(a1);
-        printf("MOV %s, %s\n", lhs, a1);
-    }
-}
-
-void handle_printf(const char *line)
-{
-    char name[32];
-
-    if (sscanf(line, "printf(\"%*[^\"]\",%31[^)]);", name) == 1) {
-        trim(name);
-        printf("PRINT %s\n", name);
-    }
-}
-
 int main(int argc, char *argv[])
 {
-    FILE *fp;
-    char line[256];
+    
+    FILE *fp = stdin;
+    char line[100], lhs[20], op1[20], op2[20], op;
 
-    if (argc < 2) {
-        printf("Usage: prog5.exe input.c\n");
+    if (argc > 2) {
+        printf("Usage: prog5.exe [input_file]\n");
         return 1;
     }
 
-    fp = fopen(argv[1], "r");
-    if (fp == NULL) {
-        printf("Cannot open input file\n");
-        return 1;
-    }
-
-    while (fgets(line, sizeof(line), fp) != NULL) {
-        trim(line);
-        if (strncmp(line, "int ", 4) == 0 && strchr(line, '(') == NULL) {
-            handle_declaration(line);
+    if (argc == 2) {
+        fp = fopen(argv[1], "r");
+        if (fp == NULL) {
+            printf("Cannot open file\n");
+            return 1;
         }
+    } else {
+        printf("Enter source statements (Ctrl+Z + Enter to finish):\n");
     }
 
-    rewind(fp);
-    print_variables();
+    printf("Assembly code:\n");
 
-    while (fgets(line, sizeof(line), fp) != NULL) {
-        trim(line);
-
-        if (strchr(line, '=') != NULL && strncmp(line, "int ", 4) != 0) {
-            handle_assignment(line);
-        } else if (strncmp(line, "printf", 6) == 0) {
-            handle_printf(line);
-        } else if (strncmp(line, "return", 6) == 0) {
+    while (fgets(line, sizeof(line), fp)) {
+        if (strstr(line, "printf")) {
+            printf("CALL PRINT\n");
+        } else if (strstr(line, "return")) {
             printf("RET\n");
+        } else if (sscanf(line, " %[^=]=%[^+-*/;]%c%[^;];", lhs, op1, &op, op2) == 4) {
+            printf("MOV AX,%s\n", op1);
+
+            if (op == '+')
+                printf("ADD AX,%s\n", op2);
+            else if (op == '-')
+                printf("SUB AX,%s\n", op2);
+            else if (op == '*')
+                printf("MUL %s\n", op2);
+            else if (op == '/')
+                printf("DIV %s\n", op2);
+
+            printf("MOV %s,AX\n", lhs);
+        } else if (sscanf(line, " %[^=]=%[^;];", lhs, op1) == 2) {
+            printf("MOV %s,%s\n", lhs, op1);
         }
     }
 
-    fclose(fp);
+    if (fp != stdin) {
+        fclose(fp);
+    }
     return 0;
 }
