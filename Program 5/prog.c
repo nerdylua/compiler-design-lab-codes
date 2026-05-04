@@ -3,7 +3,7 @@
 
 int main(int argc, char *argv[])
 {
-<<<<<<< HEAD
+
     FILE *fp = stdin;
     char line[100], lhs[20], op1[20], op2[20], op;
 
@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
 
     printf("Assembly code:\n");
 
-=======
+
     FILE *fp;
     char line[100], lhs[20], op1[20], op2[20], op;
 
@@ -41,7 +41,6 @@ int main(int argc, char *argv[])
 
     printf("Assembly code:\n");
 
->>>>>>> 873be0f1a900619a047049f6b4ffadb549627ab2
     while (fgets(line, sizeof(line), fp)) {
         if (strstr(line, "printf")) {
             printf("CALL PRINT\n");
