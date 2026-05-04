@@ -3,7 +3,7 @@
 
 int main(int argc, char *argv[])
 {
-
+    
     FILE *fp = stdin;
     char line[100], lhs[20], op1[20], op2[20], op;
 
@@ -20,23 +20,6 @@ int main(int argc, char *argv[])
         }
     } else {
         printf("Enter source statements (Ctrl+Z + Enter to finish):\n");
-    }
-
-    printf("Assembly code:\n");
-
-
-    FILE *fp;
-    char line[100], lhs[20], op1[20], op2[20], op;
-
-    if (argc != 2) {
-        printf("Usage: prog5.exe input.c\n");
-        return 1;
-    }
-
-    fp = fopen(argv[1], "r");
-    if (fp == NULL) {
-        printf("Cannot open file\n");
-        return 1;
     }
 
     printf("Assembly code:\n");
