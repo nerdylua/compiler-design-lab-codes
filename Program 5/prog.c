@@ -3,6 +3,7 @@
 
 int main(int argc, char *argv[])
 {
+<<<<<<< HEAD
     FILE *fp = stdin;
     char line[100], lhs[20], op1[20], op2[20], op;
 
@@ -23,6 +24,24 @@ int main(int argc, char *argv[])
 
     printf("Assembly code:\n");
 
+=======
+    FILE *fp;
+    char line[100], lhs[20], op1[20], op2[20], op;
+
+    if (argc != 2) {
+        printf("Usage: prog5.exe input.c\n");
+        return 1;
+    }
+
+    fp = fopen(argv[1], "r");
+    if (fp == NULL) {
+        printf("Cannot open file\n");
+        return 1;
+    }
+
+    printf("Assembly code:\n");
+
+>>>>>>> 873be0f1a900619a047049f6b4ffadb549627ab2
     while (fgets(line, sizeof(line), fp)) {
         if (strstr(line, "printf")) {
             printf("CALL PRINT\n");
